@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+    <script src="/js/jquery-dateformat.js"></script>
+
+</head>
+<body>
+<div class="container">
+    <br/>
+    <button type="button" class="btn btn-primary nouveau" data-toggle="modal" data-target="#exampleModal" data-whatever="@mdo">NOUVEAU</button>
+    <br/><br/>
+    <h2>Liste des medecins</h2>
+    <table class="table table-bordered table-sm">
+        <thead>
+        <tr>
+            <th>Prénom</th>
+            <th>Nom</th>
+            <th>Tel</th>
+            <th>Adresse</th>
+            <th>Email</th>
+            <th>Date de Naissance</th>
+            <th>Service</th>
+            <th>Update</th>
+            <th>Transferer</th>
+            <th>Manage specilaites</th>
+            <th>Supprimer</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="medecin:${medecins}">
+                <td th:text="${medecin.prenom}"></td>
+                <td th:text="${medecin.nom}"></td>
+                <td th:text="${medecin.tel}"></td>
+                <td th:text="${medecin.adresse}"></td>
+                <td th:text="${medecin.email}"></td>
+                <td th:text="${medecin.datenaissance}"></td>
+                <td th:text="${medecin.service.libelle}"></td>
+                <td><a
+                       class="btn btn-primary edit" href="#"
+                       role="button" data-toggle="modal" data-target="#exampleModal">Update</a></td>
+                <td><a
+                       class="btn btn-primary transfert" href="#"
+                       role="button" data-toggle="modal" data-target="#exampleModal">Transferer</a></td>
+
+                <td><a
+                       class="btn btn-primary manage" href="#"
+                       role="button" data-toggle="modal" data-target="#exampleModal">specialite</a></td>
+
+                <td><a
+                       class="btn btn-danger remove" href="#" id="remove"
+                       role="button" data-toggle="modal" data-target="#confirmModal">Supprimer</a></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>
