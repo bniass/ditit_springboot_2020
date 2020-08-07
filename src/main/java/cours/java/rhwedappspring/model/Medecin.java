@@ -1,5 +1,7 @@
 package cours.java.rhwedappspring.model;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 import javax.persistence.*;
 import java.util.Date;
 import java.util.List;
@@ -20,6 +22,7 @@ public class Medecin {
     @Column(length = 50)
     private String email;
     @Temporal(TemporalType.DATE)
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date datenaissance;
     @ManyToOne
     @JoinColumn(name = "service_id")

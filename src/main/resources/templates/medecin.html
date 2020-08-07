@@ -43,10 +43,10 @@
                 <td th:text="${medecin.service.libelle}"></td>
                 <td><a
                        class="btn btn-primary edit" href="#"
-                       role="button" data-toggle="modal" data-target="#exampleModal">Update</a></td>
+                       role="button" data-toggle="modal" th:data="${medecin.id}" data-target="#exampleModal">Update</a></td>
                 <td><a
                        class="btn btn-primary transfert" href="#"
-                       role="button" data-toggle="modal" data-target="#exampleModal">Transferer</a></td>
+                       role="button" data-toggle="modal"  data-target="#exampleModal">Transferer</a></td>
 
                 <td><a
                        class="btn btn-primary manage" href="#"
@@ -59,6 +59,149 @@
         </tbody>
     </table>
 </div>
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">New message</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="#" th:action="@{/medecin/add}" th:object="${medecin}" id="form1" method="post">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="prenom" class="col-form-label">Prénom:</label>
+                        <input th:field="*{prenom}" type="text" class="form-control" id="prenom">
+                    </div>
+                    <div class="form-group">
+                        <label for="nom" class="col-form-label">Nom:</label>
+                        <input th:field="*{nom}" type="text" class="form-control" id="nom">
+                    </div>
+                    <div class="form-group">
+                        <label for="tel" class="col-form-label">Téléphone:</label>
+                        <input type="text" th:field="*{tel}" class="form-control" id="tel">
+                    </div>
+                    <div class="form-group">
+                        <label for="adresse" class="col-form-label">Adresse:</label>
+                        <input type="text" th:field="*{adresse}" class="form-control" id="adresse">
+                    </div>
+                    <div class="form-group">
+                        <label for="email" class="col-form-label">Email:</label>
+                        <input type="text" th:field="*{email}" class="form-control" id="email">
+                    </div>
+                    <div class="form-group">
+                        <label for="datenais" class="col-form-label">Date de naissance:</label>
+                        <input type="date" th:field="*{datenaissance}" class="form-control" id="datenais">
+                    </div>
+                    <div class="form-group masquer">
+                        <label for="service" class="col-form-label">Service:</label>
+                        <select th:field="*{service.id}" required class="form-control" id="service">
+                            <option value="0">---------------</option>
+                            <option th:each="serv:${services}" th:value="${serv.id}"
+                                    th:text="${serv.libelle}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group masquer">
+                        <label for="specialite" class="col-form-label">Specialite:</label>
+                        <select multiple class="form-control" name="specialite" id="specialite">
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Enregister</button>
+                </div>
+                <input type="hidden"  th:field="*{id}" id="medecinid">
+            </form>
+        </div>
+    </div>
+</div>
+<script type="application/javascript">
+    $(document).ready(function () {
+        console.log('eeeeeeeeeeeeee')
+        $("#service").change(function () {
+            console.log('ffffffffffffffff')
+            if($("#service").val() === ''){
+                $('#specialite').empty();
+                return;
+            }
+            $.ajax({
+                url:'/parametre/service/'+$("#service").val(),
+                type:"GET",
+                dataType:"json",
+                success:function (data) {
+                    console.log(data);
+                    var options = "";
+                    data.forEach((e) => {
+                        options +="<option value='"+e.id+"'>"+e.libelle+"</option>";
+                });
+                    $('#specialite').empty();
+                    $('#specialite').append(options);
+                },
+                error:function (err) {
+                    console.log(err);
+                }
+            })
+        })
 
+        //update du medecin
+        function get($, bouton){
+            var idmedecin = $(bouton).attr('data');
+            $.ajax({
+                url:'/medecin/'+idmedecin,
+                type:"GET",
+                dataType:"json",
+                success:function (data) {
+                    var tabSpec = []
+                    data.specialites.forEach(e => {
+                        console.log(e)
+                        tabSpec.push(e.id)
+                    });
+                    var options = ''
+                    data.service.specialites.forEach(e => {
+                        options +="<option value='"+e.id+"'>"+e.libelle+"</option>";
+                });
+                    console.log(tabSpec);
+                    $('#prenom').val(data.prenom);
+                    $('#nom').val(data.nom);
+                    $('#tel').val(data.tel);
+                    $('#adresse').val(data.adresse);
+                    $('#email').val(data.email);
+                    var date = "\/Date("+data.datenaissance+")\/";
+                    console.log(date);
+                    var nowDate = new Date(parseInt(date.substr(6)))
+                    console.log(nowDate)
+                    $('#datenais').val($.format.date(nowDate, 'yyyy-MM-dd'));
+                    $('#service').val(data.service.id);
+                    $('#specialite').empty();
+                    $('#specialite').append(options);
+                    $('#specialite').val(tabSpec);
+                    $('#medecinid').val(data.id);
+                },
+                error:function (err) {
+                    console.log(err);
+                }
+            })
+        }
+        //-------------------------------------------------
+        $('.edit').click(function () {
+            get($, $(this));
+            $('.masquer').hide();
+            $('#action').val('update');
+            $('#prenom').removeAttr('readonly');
+            $('#nom').removeAttr('readonly');
+            $('#tel').removeAttr('readonly');
+            $('#adresse').removeAttr('readonly');
+            $('#email').removeAttr('readonly');
+            $('#specialite').removeAttr('readonly');
+            $('#datenais').removeAttr('readonly');
+            $('#service').removeAttr('readonly');
+        })
+        //fin update du medecin
+
+    });
+
+</script>
 </body>
 </html>
