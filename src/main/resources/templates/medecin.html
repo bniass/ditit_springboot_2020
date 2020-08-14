@@ -13,7 +13,7 @@
 <body>
 <div class="container">
     <br/>
-    <button type="button" class="btn btn-primary nouveau" data-toggle="modal" data-target="#exampleModal" data-whatever="@mdo">NOUVEAU</button>
+    <button type="button" id="nouveau" class="btn btn-primary nouveau" data-toggle="modal" data-target="#exampleModal" data-whatever="@mdo">NOUVEAU</button>
     <br/><br/>
     <h2>Liste des medecins</h2>
     <table class="table table-bordered table-sm">
@@ -22,10 +22,8 @@
             <th>Prénom</th>
             <th>Nom</th>
             <th>Tel</th>
-            <th>Adresse</th>
-            <th>Email</th>
-            <th>Date de Naissance</th>
             <th>Service</th>
+            <th>Photo</th>
             <th>Update</th>
             <th>Transferer</th>
             <th>Manage specilaites</th>
@@ -37,23 +35,23 @@
                 <td th:text="${medecin.prenom}"></td>
                 <td th:text="${medecin.nom}"></td>
                 <td th:text="${medecin.tel}"></td>
-                <td th:text="${medecin.adresse}"></td>
-                <td th:text="${medecin.email}"></td>
-                <td th:text="${medecin.datenaissance}"></td>
+                <td>
+                    <img th:src="@{'/images/'+${medecin.photo}}" style="width: 40px; height: 50px;">
+                </td>
                 <td th:text="${medecin.service.libelle}"></td>
                 <td><a
                        class="btn btn-primary edit" href="#"
                        role="button" data-toggle="modal" th:data="${medecin.id}" data-target="#exampleModal">Update</a></td>
                 <td><a
                        class="btn btn-primary transfert" href="#"
-                       role="button" data-toggle="modal"  data-target="#exampleModal">Transferer</a></td>
+                       role="button" data-toggle="modal" th:data="${medecin.id}" data-target="#exampleModal">Transferer</a></td>
 
                 <td><a
                        class="btn btn-primary manage" href="#"
-                       role="button" data-toggle="modal" data-target="#exampleModal">specialite</a></td>
+                       role="button" data-toggle="modal" th:data="${medecin.id}" data-target="#exampleModal">specialite</a></td>
 
                 <td><a
-                       class="btn btn-danger remove" href="#" id="remove"
+                       class="btn btn-danger remove" href="#" th:data="${medecin.id+'-'+medecin.nom+'-'+medecin.prenom}" id="remove"
                        role="button" data-toggle="modal" data-target="#confirmModal">Supprimer</a></td>
             </tr>
         </tbody>
@@ -68,7 +66,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form action="#" th:action="@{/medecin/add}" th:object="${medecin}" id="form1" method="post">
+            <form enctype="multipart/form-data" action="#" th:action="@{/medecin/add}" th:object="${medecin}" id="form1" method="post">
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="prenom" class="col-form-label">Prénom:</label>
@@ -96,7 +94,7 @@
                     </div>
                     <div class="form-group masquer">
                         <label for="service" class="col-form-label">Service:</label>
-                        <select th:field="*{service.id}" required class="form-control" id="service">
+                        <select name="serviceId" th:field="*{service.id}" required class="form-control" id="service">
                             <option value="0">---------------</option>
                             <option th:each="serv:${services}" th:value="${serv.id}"
                                     th:text="${serv.libelle}"></option>
@@ -107,19 +105,67 @@
                         <select multiple class="form-control" name="specialite" id="specialite">
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label for="file" class="col-form-label">Photo:</label>
+                        <input accept=".png,.jpg, .jpeg" type="file" th:field="*{files}" class="form-control" id="file">
+                    </div>
+                    <div class="form-group">
+                        <img th:src="@{image/default}" id="image"/>
+                    </div>
                 </div>
+
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Enregister</button>
+                    <button id="save" type="submit" class="btn btn-primary">Enregister</button>
                 </div>
                 <input type="hidden"  th:field="*{id}" id="medecinid">
+                <input type="hidden"  name="serviceId" id="serviceId">
             </form>
         </div>
     </div>
 </div>
+<div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalLabel">Suppression d'un medecin</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="form2" method="post" action="/medecin/remove">
+                <div class="modal-body" id="contentConfirm">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-danger">Supprimer</button>
+                </div>
+                <input type="hidden" id="medecinId" name="medecinId">
+            </form>
+        </div>
+    </div>
+</div>
+
 <script type="application/javascript">
     $(document).ready(function () {
-        console.log('eeeeeeeeeeeeee')
+        $("#save").click(function () {
+            $("#serviceId").val($('#service').val())
+        });
+        $("#nouveau").click(function () {
+            $('#form1').attr('action','/medecin/add');
+            $('.masquer').show();
+            $('#prenom').val("");
+            $('#nom').val("");
+            $('#tel').val("");
+            $('#adresse').val("");
+            $('#email').val("");
+            $('#datenais').val("");
+            $('#service').val("0");
+            $('#specialite').empty();
+            $('#medecinid').val(0);
+        })
+
         $("#service").change(function () {
             console.log('ffffffffffffffff')
             if($("#service").val() === ''){
@@ -186,6 +232,7 @@
         }
         //-------------------------------------------------
         $('.edit').click(function () {
+            $('#form1').attr('action','/medecin/add');
             get($, $(this));
             $('.masquer').hide();
             $('#action').val('update');
@@ -199,7 +246,61 @@
             $('#service').removeAttr('readonly');
         })
         //fin update du medecin
+        function imageIsLoaded(e) {
+            //$("#file").css("color","green");
+            //$('#image_preview').css("display", "block");
+            $('#image').attr('src', e.target.result);
+            $('#image').attr('width', '100px');
+            $('#image').attr('height', '100px');
+        };
+        $('#file').change(function () {
+            if (this.files && this.files[0]) {
+                var file = this.files[0];
+                var imagefile = file.type;
+                var reader = new FileReader();
+                reader.onload = imageIsLoaded;
+                reader.readAsDataURL(this.files[0]);
+            }
 
+        });
+       //--------------------------------------
+        $('.transfert').click(function () {
+            $('#form1').attr('action','/medecin/transfert');
+            get($, $(this));
+            $('.masquer').show();
+            $('#prenom').attr('readonly', true);
+            $('#action').val('transfert');
+            $('#nom').attr('readonly', true);
+            $('#tel').attr('readonly', true);
+            $('#adresse').attr('readonly', true);
+            $('#email').attr('readonly', true);
+            $('#specialite').attr('readonly', true);
+            $('#datenais').attr('readonly', true);
+        });
+
+        //-------------------------------------
+        //-------------------------------------------------
+        $('.manage').click(function () {
+            $('#form1').attr('action','/medecin/manage');
+            get($, $(this));
+            $('.masquer').show();
+            $('#prenom').attr('readonly', true);
+            $('#action').val('managespecialite');
+            $('#nom').attr('readonly', true);
+            $('#tel').attr('readonly', true);
+            $('#adresse').attr('readonly', true);
+            $('#email').attr('readonly', true);
+            $('#service').attr('readonly', true);
+            $('#specialite').removeAttr('readonly');
+            $('#datenais').attr('readonly', true);
+        })
+        //---------------------------------------
+        $('.remove').click(function () {
+            var data = $(this).attr("data").split('-');
+            $('#medecinId').val(data[0]);
+            $('#contentConfirm').empty();
+            $('#contentConfirm').append('Êtes-vous sur de vouloir supprimer ['+data[2]+' '+data[1]+']');
+        });
     });
 
 </script>

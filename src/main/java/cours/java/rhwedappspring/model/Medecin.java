@@ -1,6 +1,7 @@
 package cours.java.rhwedappspring.model;
 
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -21,6 +22,12 @@ public class Medecin {
     private String adresse;
     @Column(length = 50)
     private String email;
+    @Column(length = 50)
+    private String photo;
+
+    @Transient
+    private MultipartFile[] files;
+
     @Temporal(TemporalType.DATE)
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date datenaissance;
@@ -104,5 +111,21 @@ public class Medecin {
 
     public void setSpecialites(List<Specialite> specialites) {
         this.specialites = specialites;
+    }
+
+    public String getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(String photo) {
+        this.photo = photo;
+    }
+
+    public MultipartFile[] getFiles() {
+        return files;
+    }
+
+    public void setFiles(MultipartFile[] files) {
+        this.files = files;
     }
 }
