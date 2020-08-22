@@ -7,6 +7,8 @@ import cours.java.rhwedappspring.model.Medecin;
 import cours.java.rhwedappspring.model.Service;
 import cours.java.rhwedappspring.model.Specialite;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -35,6 +37,7 @@ public class MedecinController {
     @Autowired
     private SpecialiteRepository specialiteRepository;
 
+    @PreAuthorize("hasAuthority('ROLE_MEDECIN')")
     @GetMapping("/all")
     public String medecinPage(Model model) {
         Medecin medecin = new Medecin();
@@ -45,7 +48,7 @@ public class MedecinController {
         model.addAttribute("medecins", medecinRepository.findAll());
         return "medecin";
     }
-
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PostMapping("/add")
     public String addmedecin(@ModelAttribute("medecin") Medecin medecin, long[] specialite) {
         List<Specialite> specialiteList = new ArrayList<>();
@@ -76,6 +79,7 @@ public class MedecinController {
         return "redirect:/medecin/all";
     }
 
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @GetMapping("/{id}")
     public @ResponseBody
     Medecin OneMedecin(@PathVariable(name = "id") long medecinId){
@@ -90,6 +94,7 @@ public class MedecinController {
         return Files.readAllBytes(serverFile.toPath());
     }
 
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PostMapping("/transfert")
     public String addmedecin(long id, long serviceId) {
         Medecin m = medecinRepository.getOne(id);
@@ -98,6 +103,7 @@ public class MedecinController {
         medecinRepository.save(m);
         return "redirect:/medecin/all";
     }
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PostMapping("/manage")
     public String addmedecin(long id, long[] specialite) {
         Medecin m = medecinRepository.getOne(id);
@@ -109,6 +115,7 @@ public class MedecinController {
         medecinRepository.save(m);
         return "redirect:/medecin/all";
     }
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PostMapping("/remove")
     public String addmedecin(long medecinId) {
         Medecin m = medecinRepository.getOne(medecinId);
